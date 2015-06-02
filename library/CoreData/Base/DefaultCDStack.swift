@@ -11,7 +11,7 @@ import CoreData
 
 public class DefaultCDStack: SugarRecordStackProtocol
 {
-    
+
     //MARK: - Class properties
     public var name: String = "DefaultCoreDataStack"
     public var stackDescription: String = "Default core data stack with an efficient context management"
@@ -27,16 +27,16 @@ public class DefaultCDStack: SugarRecordStackProtocol
     internal var rootSavingContext: NSManagedObjectContext?
     internal var mainContext: NSManagedObjectContext?
     internal var persistentStore: NSPersistentStore?
-    
+
     //MARK: - Initializers
-    
+
     /**
     Initialize the CoreData default stack passing the database path URL and a flag indicating if the automigration has to be automatically executed
-    
+
     :param: databaseURL   NSURL with the database path
     :param: model         NSManagedObjectModel with the database model
     :param: automigrating Bool Indicating if the migration has to be automatically executed
-    
+
     :returns: DefaultCDStack object
     */
     public init(databaseURL: NSURL, model: NSManagedObjectModel?, automigrating: Bool)
@@ -47,67 +47,80 @@ public class DefaultCDStack: SugarRecordStackProtocol
         self.migrationFailedClosure = {}
         self.addObservers()
     }
-    
+
     /**
     Initialize the CoreData default stack passing the database name and a flag indicating if the automigration has to be automatically executed
-    
+
     :param: databaseName  String with the database name
     :param: automigrating Bool Indicating if the migration has to be automatically executed
-    
+
     :returns: DefaultCDStack object
     */
     convenience public init(databaseName: String, automigrating: Bool)
     {
         self.init(databaseURL: DefaultCDStack.databasePathURLFromName(databaseName), automigrating: automigrating)
     }
-    
+
+    /**
+    Initialize the CoreData default stack passing the database name and a flag indicating if the automigration has to be automatically executed
+
+    :param: databaseName  NSURL with the database path
+    :param: automigrating Bool Indicating if the migration has to be automatically executed
+
+    :returns: DefaultCDStack object
+    */
+    convenience public init(databaseName: NSURL, automigrating: Bool)
+    {
+        self.init(databaseURL: databaseName, automigrating: automigrating)
+    }
+
     /**
     Initialize the CoreData default stack passing the database path in String format and a flag indicating if the automigration has to be automatically executed
-    
+
     :param: databasePath  String with the database path
     :param: automigrating Bool Indicating if the migration has to be automatically executed
-    
+
     :returns: DefaultCDStack object
     */
     convenience public init(databasePath: String, automigrating: Bool)
     {
         self.init(databaseURL: NSURL(fileURLWithPath: databasePath)!, automigrating: automigrating)
     }
-    
+
     /**
     Initialize the CoreData default stack passing the database path URL and a flag indicating if the automigration has to be automatically executed
-    
+
     :param: databaseURL   NSURL with the database path
     :param: automigrating Bool Indicating if the migration has to be automatically executed
-    
+
     :returns: DefaultCDStack object
     */
     convenience public init(databaseURL: NSURL, automigrating: Bool)
     {
         self.init(databaseURL: databaseURL, model: nil, automigrating: automigrating)
     }
-    
+
     /**
     Initialize the CoreData default stack passing the database name, the database model object and a flag indicating if the automigration has to be automatically executed
-    
+
     :param: databaseName  String with the database name
     :param: model         NSManagedObjectModel with the database model
     :param: automigrating Bool indicating if the migration has to be automatically executed
-    
+
     :returns: DefaultCDStack object
     */
     convenience public init(databaseName: String, model: NSManagedObjectModel, automigrating: Bool)
     {
         self.init(databaseURL: DefaultCDStack.databasePathURLFromName(databaseName), model: model, automigrating: automigrating)
     }
-    
+
     /**
     Initialize the CoreData default stack passing the database path in String format, the database model object and a flag indicating if the automigration has to be automatically executed
-    
+
     :param: databasePath  String with the database path
     :param: model         NSManagedObjectModel with the database model
     :param: automigrating Bool indicating if the migration has to be automatically executed
-    
+
     :returns: DefaultCDStack object
     */
     convenience public init(databasePath: String, model: NSManagedObjectModel, automigrating: Bool)
@@ -125,7 +138,7 @@ public class DefaultCDStack: SugarRecordStackProtocol
         persistentStoreCoordinator = createPersistentStoreCoordinator()
         addDatabase(dataBaseAddedClosure())
     }
-    
+
     /**
     Returns the closure to be execute once the database has been created
     */
@@ -144,7 +157,7 @@ public class DefaultCDStack: SugarRecordStackProtocol
             self!.stackInitialized = true
         }
     }
-    
+
     /**
     Clean up the stack an all its components
     */
@@ -152,7 +165,7 @@ public class DefaultCDStack: SugarRecordStackProtocol
     {
         // Nothing to do here
     }
-    
+
     /**
     Call received when the application will resign active
     Note: In case of overriding it ensure you call super.applicationWillResignActive()
@@ -161,7 +174,7 @@ public class DefaultCDStack: SugarRecordStackProtocol
     {
         saveChanges()
     }
-    
+
     /**
     Call received when the application will terminate
     Note: In case of overriding it ensure you call super.applicationWillTerminate()
@@ -170,7 +183,7 @@ public class DefaultCDStack: SugarRecordStackProtocol
     {
         saveChanges()
     }
-    
+
     /**
     Call received when the application will enter foreground
     Note: In case of overriding it ensure you call super.applicationWillEnterForeground()
@@ -179,10 +192,10 @@ public class DefaultCDStack: SugarRecordStackProtocol
     {
         // Nothing to do here
     }
-    
+
     /**
     Creates a background saving context and returns a SugarRecord CoreData context with it
-    
+
     :returns: SugarRecordCDContext with the background context
     */
     public func backgroundContext() -> SugarRecordContext?
@@ -198,10 +211,10 @@ public class DefaultCDStack: SugarRecordStackProtocol
         }
         return SugarRecordCDContext(context: context)
     }
-    
+
     /**
     Returns a SugarRecordCDContext with the main stack context to be used in the main thread
-    
+
     :returns: SugarRecordCDContext with the main context
     */
     public func mainThreadContext() -> SugarRecordContext?
@@ -211,7 +224,7 @@ public class DefaultCDStack: SugarRecordStackProtocol
         }
         return SugarRecordCDContext(context: self.mainContext!)
     }
-    
+
     /**
     Removes the local database
     */
@@ -228,15 +241,15 @@ public class DefaultCDStack: SugarRecordStackProtocol
             SugarRecord.handle(error)
         }
     }
-    
-    
+
+
     //MARK: - Observers
-    
+
     /**
     Add observers to listen events in the stack
     */
     internal func addObservers() {}
-    
+
     /**
     Returns the notification center that is going to be used to listen events
     d
@@ -246,7 +259,7 @@ public class DefaultCDStack: SugarRecordStackProtocol
     {
         return NSNotificationCenter.defaultCenter()
     }
-    
+
     /**
     Closure for AutoSaving changes
     */
@@ -258,15 +271,15 @@ public class DefaultCDStack: SugarRecordStackProtocol
             }
         }
     }
-    
-    
+
+
     //MARK: - Creation helper
-    
+
     /**
     Creates the main stack context
-    
+
     :param: parentContext NSManagedObjectContext to be set as the parent of the main context
-    
+
     :returns: Main NSManageObjectContext
     */
     internal func createMainContext(parentContext: NSManagedObjectContext?) -> NSManagedObjectContext
@@ -285,12 +298,12 @@ public class DefaultCDStack: SugarRecordStackProtocol
         SugarRecordLogger.logLevelVerbose.log("Created MAIN context")
         return context!
     }
-    
+
     /**
     Creates a temporary root saving context to be used in background operations
-    
+
     :param: persistentStoreCoordinator NSPersistentStoreCoordinator to be set as the persistent store coordinator of the created context
-    
+
     :returns: Private NSManageObjectContext
     */
     internal func createRootSavingContext(persistentStoreCoordinator: NSPersistentStoreCoordinator?) -> NSManagedObjectContext
@@ -313,7 +326,7 @@ public class DefaultCDStack: SugarRecordStackProtocol
         SugarRecordLogger.logLevelVerbose.log("Created Root Saving context")
         return context!
     }
-    
+
     /**
     Creates the ManagedObject model if it's needed
     */
@@ -323,10 +336,10 @@ public class DefaultCDStack: SugarRecordStackProtocol
             managedObjectModel = NSManagedObjectModel.mergedModelFromBundles(nil)
         }
     }
-    
+
     /**
     Creates the stack's persistent store coordinator
-    
+
     :returns: NSPersistentStoreCoordinator of the stack
     */
     internal func createPersistentStoreCoordinator() -> NSPersistentStoreCoordinator
@@ -334,9 +347,9 @@ public class DefaultCDStack: SugarRecordStackProtocol
         var coordinator: NSPersistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel!)
         return coordinator
     }
-    
+
     //MARK: - Database helper
-    
+
     /**
     Check if the database exists (if not it creates it), then it initializes the persistent store and executes the migration in case of needed
     */
@@ -345,12 +358,12 @@ public class DefaultCDStack: SugarRecordStackProtocol
         var error: NSError?
         self.createPathIfNecessary(forFilePath: self.databasePath!)
         var store: NSPersistentStore?
-        
+
         // Checking that the PSC exists before adding the store
         if self.persistentStoreCoordinator == nil {
             SugarRecord.handle(NSError(domain: "Trying to initialize the store without persistent store coordinator", code: SugarRecordErrorCodes.LibraryError.rawValue, userInfo: nil))
         }
-        
+
         // Adding the store
         self.persistentStoreCoordinator!.lock()
         if self.automigrating {
@@ -360,7 +373,7 @@ public class DefaultCDStack: SugarRecordStackProtocol
             store = self.persistentStoreCoordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: self.databasePath!, options: DefaultCDStack.defaultStoreOptions(), error: &error)
         }
         self.persistentStoreCoordinator!.unlock()
-        
+
         // Executing forced migration in case of that something went wrong
         let isMigratingError = error?.code == NSPersistentStoreIncompatibleVersionHashError || error?.code == NSMigrationMissingSourceModelError
         if (error?.domain == NSCocoaErrorDomain as String) && isMigratingError {
@@ -390,14 +403,14 @@ public class DefaultCDStack: SugarRecordStackProtocol
             SugarRecord.handle(error)
         }
         self.persistentStore = store!
-        
+
         // Calling completion closure
         completionClosure(error: nil)
     }
-    
+
     /**
     Creates a path if necessary in a given route
-    
+
     :param: filePath NSURL with the whose folder is going to be created
     */
     public func createPathIfNecessary(forFilePath filePath:NSURL)
@@ -410,10 +423,10 @@ public class DefaultCDStack: SugarRecordStackProtocol
             SugarRecord.handle(error!)
         }
     }
-    
+
     /**
     Returns the automigration options to be used when the NSPersistentStore is initialized
-    
+
     :returns: [NSObject: AnyObject] with the options
     */
     internal class func autoMigrateStoreOptions() -> [NSObject: AnyObject]
@@ -426,10 +439,10 @@ public class DefaultCDStack: SugarRecordStackProtocol
         options[NSSQLitePragmasOption] = sqliteOptions
         return options
     }
-    
+
     /**
     Returns the default options to be used when the NSPersistentStore is initialized
-    
+
     :returns: [NSObject: AnyObject] with the options
     */
     internal class func defaultStoreOptions() -> [NSObject: AnyObject]
@@ -442,12 +455,12 @@ public class DefaultCDStack: SugarRecordStackProtocol
         options[NSSQLitePragmasOption] = sqliteOptions
         return options
     }
-    
+
     /**
     Returns the database path URL for a given name
-    
+
     :param: name String with the database name
-    
+
     :returns: NSURL with the path
     */
     internal class func databasePathURLFromName(name: String) -> NSURL
@@ -455,7 +468,7 @@ public class DefaultCDStack: SugarRecordStackProtocol
         let documentsPath: String = NSSearchPathForDirectoriesInDomains(.ApplicationSupportDirectory, .UserDomainMask, true)[0] as! String
         let mainBundleInfo: [NSObject: AnyObject] = NSBundle.mainBundle().infoDictionary!
         let applicationPath: String = documentsPath.stringByAppendingPathComponent("store")
-        
+
         let paths: [String] = [documentsPath, applicationPath]
         for path in paths {
             let databasePath: String = path.stringByAppendingPathComponent(name)
@@ -466,10 +479,10 @@ public class DefaultCDStack: SugarRecordStackProtocol
         let databasePath: String = applicationPath.stringByAppendingPathComponent(name)
         return NSURL(fileURLWithPath: databasePath)!
     }
-    
-    
+
+
     //MARK: - Saving helper
-    
+
     /**
     Apply the changes of the context to be persisted in the database
     */
@@ -481,7 +494,7 @@ public class DefaultCDStack: SugarRecordStackProtocol
         else if self.mainContext == nil {
             assert(true, "Fatal error. The main context is not initialized")
         }
-        
+
         // Defining saving closure
         typealias SavingClosure = (context: NSManagedObjectContext) -> ()
         let save: SavingClosure = { (context: NSManagedObjectContext) in
@@ -496,7 +509,7 @@ public class DefaultCDStack: SugarRecordStackProtocol
             }
             context.reset()
         }
-        
+
         // Saving ROOT SAVING CONTEXT
         self.rootSavingContext!.performBlockAndWait({ () -> Void in
             if self.rootSavingContext!.hasChanges {
@@ -520,10 +533,10 @@ public extension NSManagedObjectContext
     func addObserverToGetPermanentIDsBeforeSaving() {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("contextWillSave:"), name: NSManagedObjectContextWillSaveNotification, object: self)
     }
-    
+
     /**
     Adds an observer when the context's objects have changed
-    
+
     :param: closure Closure to be executed then objects have changed
     */
     func addObserverWhenObjectsChanged(closure: () -> ()) {
@@ -531,10 +544,10 @@ public extension NSManagedObjectContext
             _ = closure()
         }
     }
-    
+
     /**
     Method executed before saving that convert temporary IDs into permanet ones
-    
+
     :param: notification Notification that fired this method
     */
     func contextWillSave(notification: NSNotification) {
@@ -550,10 +563,10 @@ public extension NSManagedObjectContext
             SugarRecordLogger.logLevelError.log("Error moving temporary IDs into permanent ones - \(error)")
         }
     }
-    
+
     /**
     Add observer of other context
-    
+
     :param: context    NSManagedObjectContext to be observed
     :param: mainThread Bool indicating if it's the main thread
     */
@@ -566,29 +579,29 @@ public extension NSManagedObjectContext
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "mergeChanges:", name: NSManagedObjectContextDidSaveNotification, object: context)
         }
     }
-    
+
     /**
     Stop observing changes from other contexts
-    
+
     :param: context NSManagedObjectContext that is going to stop observing to
     */
     func stopObserving(context: NSManagedObjectContext) {
         NSNotificationCenter.defaultCenter().removeObserver(self, name: NSManagedObjectContextDidSaveNotification, object: nil)
     }
-    
+
     /**
     Method to merge changes from other contexts (fired by KVO)
-    
+
     :param: notification Notification that fired this method call
     */
     func mergeChanges(notification: NSNotification) {
         SugarRecordLogger.logLevelInfo.log("Merging changes to context \(self)")
         self.mergeChangesFromContextDidSaveNotification(notification)
     }
-    
+
     /**
     Method to merge changes from other contexts (in the main thread)
-    
+
     :param: notification Notification that fired this method call
     */
     func mergeChangesInMainThread(notification: NSNotification) {
